@@ -213,13 +213,14 @@ class AlphaBetaPlayer:
             return best_score
 
 # Función para ejecutar los experimentos
-def run_experiments(first_player='X', num_trials=1000, max_depth=3):
+def run_experiments(first_player='X', num_trials=1000, max_depth=1):
     # Variables para almacenar resultados
     wins = 0
     losses = 0
     draws = 0
     total_nodes = 0
     total_time = 0
+    experiment_start_time = time.time()  # Tiempo de inicio del experimento
     
     alpha_beta_player = AlphaBetaPlayer(max_depth=max_depth)
     
@@ -257,6 +258,9 @@ def run_experiments(first_player='X', num_trials=1000, max_depth=3):
         if (trial + 1) % 100 == 0:
             print(f"  Progreso: {trial + 1}/{num_trials} pruebas completadas")
     
+    experiment_end_time = time.time()  # Tiempo de fin del experimento
+    total_experiment_time = experiment_end_time - experiment_start_time
+    
     # Calcular promedios
     avg_nodes = total_nodes / num_trials
     avg_time = total_time / num_trials
@@ -266,7 +270,8 @@ def run_experiments(first_player='X', num_trials=1000, max_depth=3):
         'losses': losses,
         'draws': draws,
         'avg_nodes': avg_nodes,
-        'avg_time': avg_time
+        'avg_time': avg_time,
+        'total_experiment_time': total_experiment_time
     }
 
 # Función para mostrar los resultados
@@ -278,12 +283,22 @@ def display_results(results, first_player, depth):
     print(f"Empates: {results['draws']}")
     print(f"Nodos explorados promedio: {results['avg_nodes']:.2f}")
     print(f"Tiempo promedio por movimiento: {results['avg_time']:.6f} segundos")
+    print(f"Tiempo total del experimento: {results['total_experiment_time']:.2f} segundos")
 
 # Función principal para ejecutar el experimento
 def main():
     # Configuración del experimento
-    max_depth = 3  # Profundidad de búsqueda
+    max_depth = 1  # Profundidad de búsqueda
     num_trials = 1000  # Número de pruebas
+    
+    print("\n=== INICIO DEL EXPERIMENTO ===")
+    print(f"Configuración:")
+    print(f"- Profundidad de Alpha-Beta: {max_depth}")
+    print(f"- Número de pruebas: {num_trials}")
+    print("=============================\n")
+    
+    # Registrar tiempo total de inicio
+    total_start_time = time.time()
     
     # Experimentos con 'X' (Alpha-Beta) jugando primero
     print("Ejecutando experimentos con 'X' (Alpha-Beta) jugando primero...")
@@ -293,12 +308,23 @@ def main():
     print("\nEjecutando experimentos con 'O' (oponente) jugando primero...")
     results_o_first = run_experiments(first_player='O', num_trials=num_trials, max_depth=max_depth)
     
+    # Registrar tiempo total de fin
+    total_end_time = time.time()
+    total_execution_time = total_end_time - total_start_time
+    
     # Mostrar los resultados
+    print("\n=== RESULTADOS DEL EXPERIMENTO ===")
     display_results(results_x_first, 'X', max_depth)
     display_results(results_o_first, 'O', max_depth)
+    
+    print("\n=== RESUMEN DE TIEMPOS ===")
+    print(f"Tiempo total de ejecución: {total_execution_time:.2f} segundos")
+    print(f"Tiempo para X primero: {results_x_first['total_experiment_time']:.2f} segundos")
+    print(f"Tiempo para O primero: {results_o_first['total_experiment_time']:.2f} segundos")
+    print("===========================")
 
     # Comparar resultados con diferentes profundidades
-    print("\nComparando rendimiento con diferentes profundidades de búsqueda:")
+    print("\n=== COMPARACIÓN DE PROFUNDIDADES ===")
     for depth in [1, 2, 4, 5]:
         print(f"\nProfundidad de búsqueda: {depth}")
         

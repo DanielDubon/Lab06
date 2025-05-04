@@ -1,3 +1,6 @@
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from common.game import TicTacToe, display_results
 import numpy as np
 import random
@@ -37,7 +40,7 @@ class MCTSNode:
         self.total_value += value
 
 class MCTSPlayer:
-    def __init__(self, num_simulations=100, c_param=1.4):
+    def __init__(self, num_simulations=50, c_param=1.4):
         self.num_simulations = num_simulations
         self.c_param = c_param
         self.nodes_explored = 0
@@ -78,10 +81,11 @@ class MCTSPlayer:
         best_child = max(root.children, key=lambda c: c.visits)
         return best_child.move, self.nodes_explored
 
-def run_experiments(first_player='X', trials=1000, sims=100):
+def run_experiments(first_player='X', trials=1000, sims=50):
     wins = losses = draws = 0
     total_nodes = 0
     total_time = 0.0
+    experiment_start_time = time.time()  # Tiempo de inicio del experimento
 
     mcts = MCTSPlayer(num_simulations=sims)
 
@@ -109,6 +113,9 @@ def run_experiments(first_player='X', trials=1000, sims=100):
         if (t + 1) % 100 == 0:
             print(f"  Progreso: {t+1}/{trials}")
 
+    experiment_end_time = time.time()  # Tiempo de fin del experimento
+    total_experiment_time = experiment_end_time - experiment_start_time
+
     avg_nodes = total_nodes / trials
     avg_time = total_time / trials
 
@@ -117,17 +124,37 @@ def run_experiments(first_player='X', trials=1000, sims=100):
         'losses': losses,
         'draws': draws,
         'avg_nodes': avg_nodes,
-        'avg_time': avg_time
+        'avg_time': avg_time,
+        'total_experiment_time': total_experiment_time
     }
 
 def main():
+    print("\n=== INICIO DEL EXPERIMENTO ===")
+    print(f"Configuración:")
+    print(f"- Número de simulaciones MCTS: 50")
+    print(f"- Número de pruebas: 1000")
+    print("=============================\n")
+    
+    # Registrar tiempo total de inicio
+    total_start_time = time.time()
+    
     # Experimento cuando X inicia
-    res_x = run_experiments('X', trials=1000, sims=100)
+    res_x = run_experiments('X', trials=1000, sims=50)
     display_results(res_x, "MCTS (X inicia)")
-
+    
     # Experimento cuando O inicia
-    res_o = run_experiments('O', trials=1000, sims=100)
+    res_o = run_experiments('O', trials=1000, sims=50)
     display_results(res_o, "MCTS (O inicia)")
+    
+    # Registrar tiempo total de fin
+    total_end_time = time.time()
+    total_execution_time = total_end_time - total_start_time
+    
+    print("\n=== RESUMEN DE TIEMPOS ===")
+    print(f"Tiempo total de ejecución: {total_execution_time:.2f} segundos")
+    print(f"Tiempo para X primero: {res_x['total_experiment_time']:.2f} segundos")
+    print(f"Tiempo para O primero: {res_o['total_experiment_time']:.2f} segundos")
+    print("===========================")
 
 if __name__ == "__main__":
     main()
